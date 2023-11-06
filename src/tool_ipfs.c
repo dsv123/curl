@@ -71,10 +71,8 @@ static char *ipfs_gateway(void)
 
   /* Gateway is found from environment variable. */
   if(gateway) {
-    if(ensure_trailing_slash(&gateway)) {
-      Curl_safefree(gateway);
-      return NULL;
-    }
+    if(ensure_trailing_slash(&gateway))
+      goto fail;
     return gateway;
   }
 
@@ -90,26 +88,13 @@ static char *ipfs_gateway(void)
     Curl_safefree(home);
   }
 
-  if(!ipfs_path) {
-    Curl_safefree(gateway);
-    Curl_safefree(ipfs_path);
-    return NULL;
-  }
-  else {
-    if(ensure_trailing_slash(&ipfs_path)) {
-      Curl_safefree(gateway);
-      Curl_safefree(ipfs_path);
-      return NULL;
-    }
-  }
+  if(!ipfs_path || ensure_trailing_slash(&ipfs_path))
+    goto fail;
 
   gateway_composed_file_path = aprintf("%sgateway", ipfs_path);
 
-  if(!gateway_composed_file_path) {
-    Curl_safefree(gateway);
-    Curl_safefree(ipfs_path);
-    return NULL;
-  }
+  if(!gateway_composed_file_path)
+    goto fail;
 
   gateway_file = fopen(gateway_composed_file_path, FOPEN_READTEXT);
   Curl_safefree(gateway_composed_file_path);
@@ -134,16 +119,14 @@ static char *ipfs_gateway(void)
     if(gateway)
       ensure_trailing_slash(&gateway);
 
-    if(!gateway) {
-      Curl_safefree(ipfs_path);
-      return NULL;
-    }
+    if(!gateway)
+      goto fail;
 
     Curl_safefree(ipfs_path);
 
     return gateway;
   }
-
+fail:
   Curl_safefree(gateway);
   Curl_safefree(ipfs_path);
   return NULL;
