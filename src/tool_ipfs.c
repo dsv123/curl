@@ -100,17 +100,17 @@ static char *ipfs_gateway(void)
   if(gateway_file) {
     int c;
     struct curlx_dynbuf dyn;
-    curlx_dyn_init(&dyn, INT_MAX);
+    curlx_dyn_init(&dyn, MAX_GATEWAY_URL_LEN);
 
     /* get the first line of the gateway file, ignore the rest */
     while((c = getc(gateway_file)) != EOF && c != '\n' && c != '\r') {
       if(curlx_dyn_addn(&dyn, &c, 1))
-        break;
+        goto fail;
     }
 
     fclose(gateway_file);
 
-    if(curlx_dyn_len(&dyn) > 0)
+    if(curlx_dyn_len(&dyn))
       gateway = curlx_dyn_ptr(&dyn);
 
     if(gateway)
@@ -124,6 +124,8 @@ static char *ipfs_gateway(void)
     return gateway;
   }
 fail:
+  if(gateway_file)
+    fclose(gateway_file);
   Curl_safefree(gateway);
   Curl_safefree(ipfs_path);
   return NULL;

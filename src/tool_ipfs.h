@@ -25,6 +25,8 @@
  ***************************************************************************/
 #include "tool_setup.h"
 
+#define MAX_GATEWAY_URL_LEN 10000
+
 CURLcode ipfs_url_rewrite(CURLU *uh, const char *protocol, char **url,
                           struct OperationConfig *config);
 
