@@ -62,12 +62,10 @@ static CURLcode ensure_trailing_slash(char **input)
 
 static char *ipfs_gateway(void)
 {
-  char *gateway = NULL;
   char *ipfs_path = NULL;
   char *gateway_composed_file_path = NULL;
   FILE *gateway_file = NULL;
-
-  gateway = curlx_getenv("IPFS_GATEWAY");
+  char *gateway = curlx_getenv("IPFS_GATEWAY");
 
   /* Gateway is found from environment variable. */
   if(gateway) {
